@@ -1,4 +1,4 @@
-package com.daoliname.daoliname;
+package com.daoliname.secret;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;

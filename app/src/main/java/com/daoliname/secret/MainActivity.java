@@ -1,8 +1,12 @@
-package com.daoliname.daoliname;
+package com.daoliname.secret;
 
+import android.graphics.Bitmap;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.daoliname.secret.utils.QRCodeUtil;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -17,8 +21,15 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         // Example of a call to a native method
+        String encryptInfo = stringFromJNI();
         TextView tv = (TextView) findViewById(R.id.sample_text);
-        tv.setText(stringFromJNI());
+        tv.setText(encryptInfo);
+        Bitmap qrCodeBitmap = QRCodeUtil.createQRCodeBitmap(encryptInfo, 100, 100);
+        ((ImageView)findViewById(R.id.iv_qr_code)).setImageBitmap(qrCodeBitmap);
+
+        // TODO: 2019/3/28 0028 save bitmap image to sdcard.
+
+        
     }
 
     /**

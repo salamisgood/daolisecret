@@ -1,4 +1,4 @@
-package com.daoliname.daoliname;
+package com.daoliname.secret;
 
 import org.junit.Test;
 
