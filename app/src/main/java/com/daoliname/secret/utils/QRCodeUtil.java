@@ -2,17 +2,30 @@ package com.daoliname.secret.utils;
 
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
 import android.support.annotation.ColorInt;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
+import android.widget.ImageView;
 
 import com.google.zxing.BarcodeFormat;
+import com.google.zxing.BinaryBitmap;
+import com.google.zxing.ChecksumException;
 import com.google.zxing.EncodeHintType;
+import com.google.zxing.FormatException;
+import com.google.zxing.NotFoundException;
+import com.google.zxing.Result;
 import com.google.zxing.WriterException;
 import com.google.zxing.common.BitMatrix;
+import com.google.zxing.common.CharacterSetECI;
+import com.google.zxing.common.HybridBinarizer;
+import com.google.zxing.qrcode.QRCodeReader;
 import com.google.zxing.qrcode.QRCodeWriter;
+import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
 
 import java.util.Hashtable;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 public class QRCodeUtil {
@@ -96,4 +109,42 @@ public class QRCodeUtil {
 
         return null;
     }
+
+
+    public static String recogQRcode(Bitmap bitmap) {
+        //Bitmap QRbmp = ((BitmapDrawable) (imageView).getDrawable()).getBitmap();
+        int width = bitmap.getWidth();
+        int height = bitmap.getHeight();
+        int[] data = new int[width * height];
+        bitmap.getPixels(data, 0, width, 0, 0, width, height);
+        RGBLuminanceSource source = new RGBLuminanceSource(bitmap);
+        BinaryBitmap bitmap1 = new BinaryBitmap(new HybridBinarizer(source));
+        QRCodeReader reader = new QRCodeReader();
+        Result re = null;
+        try {
+            re = reader.decode(bitmap1);
+        } catch (NotFoundException | ChecksumException | FormatException e) {
+            e.printStackTrace();
+        }
+        if (re != null){
+            return re.getText();
+        } else {
+            return "";
+        }
+    }
+
+
+
+    public static boolean isTextUri(String text2check){
+        if (text2check == null || text2check.isEmpty()){
+            return false;
+        }
+        String regex = "(((https|http)?://)?([a-z0-9]+[.])|(www.))"
+                + "\\w+[.|\\/]([a-z0-9]{0,})?[[.]([a-z0-9]{0,})]+((/[\\S&&[^,;\u4E00-\u9FA5]]+)+)?([.][a-z0-9]{0,}+|/?)";//设置正则表达式
+        Pattern pat = Pattern.compile(regex.trim());//比对
+        Matcher mat = pat.matcher(text2check);
+        return mat.matches();
+    }
+
+
 }
