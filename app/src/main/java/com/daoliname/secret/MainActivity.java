@@ -75,6 +75,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 String path = MediaStore.Images.Media.insertImage(getContentResolver(), qrCodeBitmap, "", "");
                 Log.d(TAG, "path = " + path);
                 msc.connect();
+                Toast.makeText(this,"生成二维码已经存到" + path,Toast.LENGTH_SHORT).show();
                 break;
             case R.id.btn_read:
                 // read the weixin micromsg dir
@@ -108,6 +109,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     this.startActivity(intent);
                 } else  {
                     Log.e(TAG,resInfo + " is not a valid url.");
+                    Toast.makeText(this,resInfo+"is not a valid url.",Toast.LENGTH_SHORT).show();
                 }
                 break;
             default:
