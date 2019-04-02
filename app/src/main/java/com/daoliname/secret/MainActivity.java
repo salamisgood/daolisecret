@@ -101,7 +101,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 // recgonize qrcode image
                 Bitmap bitmap = BitmapFactory.decodeFile(latestFile.getAbsolutePath());
                 String resInfo = QRCodeUtil.recogQRcode(bitmap);
-                resInfo = "http://www.baidu.com";
+                //resInfo = "http://www.baidu.com";
                 if (QRCodeUtil.isTextUri(resInfo)){
                     Intent intent = new Intent(this,WebActivity.class);
                     intent.putExtra(WebActivity.URL_KEY,resInfo);
