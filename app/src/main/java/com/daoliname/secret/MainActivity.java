@@ -1,5 +1,6 @@
 package com.daoliname.secret;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.MediaScannerConnection;
@@ -38,6 +39,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         findViewById(R.id.btn_gen).setOnClickListener(this);
+        findViewById(R.id.btn_read).setOnClickListener(this);
     }
 
     final MediaScannerConnection msc = new MediaScannerConnection(MainActivity.this,
@@ -76,7 +78,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
             case R.id.btn_read:
                 // read the weixin micromsg dir
-                String wxPicPath = Environment.getExternalStorageDirectory().getPath() + "Tencent/MicroMsg/WeiXin";
+                String wxPicPath = Environment.getExternalStorageDirectory().getPath() + "/Tencent/MicroMsg/WeiXin";
                 File wxFolder = new File(wxPicPath);
                 File[] files = wxFolder.listFiles();
                 if (files == null || files.length == 0) {
@@ -99,12 +101,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 // recgonize qrcode image
                 Bitmap bitmap = BitmapFactory.decodeFile(latestFile.getAbsolutePath());
                 String resInfo = QRCodeUtil.recogQRcode(bitmap);
+                resInfo = "http://www.baidu.com";
                 if (QRCodeUtil.isTextUri(resInfo)){
-                    
+                    Intent intent = new Intent(this,WebActivity.class);
+                    intent.putExtra(WebActivity.URL_KEY,resInfo);
+                    this.startActivity(intent);
+                } else  {
+                    Log.e(TAG,resInfo + " is not a valid url.");
                 }
-
-                // set the text info to editText or open the link with webview.
-
                 break;
             default:
                 break;
