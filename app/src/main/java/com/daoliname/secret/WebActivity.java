@@ -303,7 +303,8 @@ public class WebActivity extends AppCompatActivity implements View.OnClickListen
     @Override
     public void onBackPressed() {
         // 能够返回则返回上一页
-        if (webView.canGoBack()) {
+        super.onBackPressed();
+       /* if (webView.canGoBack()) {
             webView.goBack();
         } else {
             if ((System.currentTimeMillis() - exitTime) > PRESS_BACK_EXIT_GAP) {
@@ -315,7 +316,7 @@ public class WebActivity extends AppCompatActivity implements View.OnClickListen
                 super.onBackPressed();
             }
 
-        }
+        }*/
     }
 
     @Override
