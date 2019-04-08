@@ -145,11 +145,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.btn_gen:
                 Editable text = ((EditText) findViewById(R.id.et_content)).getText();
                 String inputContent = text.toString();
+                // encrypted
+                inputContent = encryptContent(inputContent);
 
                 showProgressDialog();
                 // save to cache
                 String cachePath = Objects.requireNonNull(getExternalCacheDir()).getAbsolutePath();
-                File textInputCacheFile = new File(cachePath + File.separator +System.currentTimeMillis() + ".txt");
+                File textInputCacheFile = new File(cachePath + File.separator +System.currentTimeMillis() + ".html");
                 BufferedWriter bw = null;
                 FileWriter fw = null;
                 try {
@@ -193,17 +195,31 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }
                 // recgonize qrcode image
                 Bitmap bitmap = BitmapFactory.decodeFile(latestFile.getAbsolutePath());
-                String resInfo = QRCodeUtil.recogQRcode(bitmap);
-                String decryptContent = decryptContent(resInfo);
+                String recUrl = QRCodeUtil.recogQRcode(bitmap);
+                //String decryptContent = decryptContent(resInfo);
                 //resInfo = "http://www.baidu.com";
-                if (QRCodeUtil.isTextUri(decryptContent)) {
+                if (QRCodeUtil.isTextUri(recUrl)) {
                     Intent intent = new Intent(this, WebActivity.class);
-                    intent.putExtra(WebActivity.URL_KEY, decryptContent);
+                    intent.putExtra(WebActivity.URL_KEY, recUrl);
                     this.startActivity(intent);
                 } else {
-                    Log.e(TAG, decryptContent + " is not a valid url.");
-                    showToast(decryptContent + "is not a valid url.", Toast.LENGTH_SHORT);
-                    ((EditText) findViewById(R.id.et_content)).setText(decryptContent);
+                    Log.e(TAG, recUrl + " is not a valid url.");
+                    showToast(recUrl + "is not a valid url.", Toast.LENGTH_SHORT);
+                    // get content from server
+                    OkHttpUtils.get().url(recUrl).build().execute(new StringCallback() {
+                        @Override
+                        public void onError(Call call, Exception e, int id) {
+                            Log.d(TAG, "onError: " + e.getLocalizedMessage());
+                        }
+
+                        @Override
+                        public void onResponse(String response, int id) {
+                            Log.d(TAG, "onResponse: " + response);
+                            response = decryptContent(response);
+                            ((EditText) findViewById(R.id.et_content)).setText(response);
+
+                        }
+                    });
                 }
                 break;
             default:
@@ -217,7 +233,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         OkHttpUtils.post()//
                 //.addFile("mFile", "messenger_01.png", file)//
-                .addFile(textFilePlain.getName(), textFilePlain.getName(), textFilePlain)//
+                .addFile("file", textFilePlain.getName(), textFilePlain)//
                 .url(RequestConstants.base_url + RequestConstants.upload)
                 .headers(headers)//
                 .build()//
@@ -241,7 +257,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         if (responseBean.isSuccess()){
                             String url = responseBean.getUrl();
                             Log.d(TAG, "url -> " + url);
-                            msg.obj = url;
+                            msg.obj = RequestConstants.base_url + url;
                         } else {
                             msg.obj = ((EditText) findViewById(R.id.et_content)).getText().toString();
                         }
@@ -268,9 +284,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             super.handleMessage(msg);
             switch (msg.what) {
                 case UPLOAD_SUCCESS:
-                    String url = (String) msg.obj;
-                    // encrypted
-                    String encryptInfo = encryptContent(url);
+                    String encryptInfo = (String) msg.obj;
+
                     // generate qrcode and save to dicm
                     Bitmap qrCodeBitmap = QRCodeUtil.createQRCodeBitmap(encryptInfo, 300, 300);
                     String path = MediaStore.Images.Media.insertImage(getContentResolver(), qrCodeBitmap, "", "");
